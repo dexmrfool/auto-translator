@@ -50,6 +50,8 @@ async def translate_text(text, target_language):
         logging.error(f"Translation failed: {e}")
         return None
 
+import re
+
 @client.on(events.NewMessage(chats=TARGET_CHAT))
 async def translator_handler(event):
     # 1. OUTGOING MESSAGES (You typing in English -> Auto-converts to Persian)
@@ -67,14 +69,18 @@ async def translator_handler(event):
     # 2. INCOMING MESSAGES (Persian guy typing -> Bot replies in the group with English)
     if not event.out and event.raw_text:
         
-        # Tell Gemini to translate it to English
-        translated = await translate_text(event.raw_text, "English")
-        
-        if translated:
-            # Send the translation directly into the group as a reply to the foreign message!
-            msg = f"**[Auto-Translation]**\n{translated}"
-            await event.reply(msg)
-            logging.info(f"Replied in group with translation.")
+        # Only call the Gemini API if the message actually contains Persian/Arabic characters!
+        # This prevents the bot from wasting your API rate limits on normal English/Hindi messages.
+        if re.search(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]', event.raw_text):
+            
+            # Tell Gemini to translate it to English
+            translated = await translate_text(event.raw_text, "English")
+            
+            if translated:
+                # Send the translation directly into the group as a reply to the foreign message!
+                msg = f"**[Auto-Translation]**\n{translated}"
+                await event.reply(msg)
+                logging.info(f"Replied in group with translation.")
 
 from aiohttp import web
 
