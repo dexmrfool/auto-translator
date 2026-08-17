@@ -42,7 +42,7 @@ async def translate_text(text, target_language):
     try:
         # We tell Gemini to ignore English and Hindi so it doesn't spam translations for messages you already understand!
         prompt = f"If the following text is mostly in English or Hindi, output exactly 'NO_TRANSLATION'. Otherwise, translate the text to {target_language}. Respond ONLY with the translated text (or 'NO_TRANSLATION'), nothing else. Text: '{text}'"
-        response = await gemini_client.aio.models.generate_content(model="gemini-flash-latest", contents=prompt)
+        response = await gemini_client.aio.models.generate_content(model="gemini-flash-lite-latest", contents=prompt)
         result = response.text.strip()
         if "NO_TRANSLATION" in result:
             return None
