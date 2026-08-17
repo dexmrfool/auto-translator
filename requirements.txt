@@ -1,0 +1,4 @@
+Telethon
+google-genai
+python-dotenv
+aiohttp
