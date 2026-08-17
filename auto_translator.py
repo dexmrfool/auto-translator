@@ -131,7 +131,15 @@ async def main():
     
     await client.start()
     logging.info("Translator is running! Listening to target chat...")
-    await client.run_until_disconnected()
+    
+    while True:
+        try:
+            if not client.is_connected():
+                await client.connect()
+            await client.run_until_disconnected()
+        except Exception as e:
+            logging.error(f"Telethon protocol crash ignored: {e}. Reconnecting in 5 seconds...")
+            await asyncio.sleep(5)
 
 if __name__ == '__main__':
     asyncio.run(main())
