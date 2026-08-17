@@ -74,9 +74,10 @@ async def translator_handler(event):
             await event.edit("✅ **Auto-Translator Resumed.** I am listening again.")
             return
 
-        # If you start your message with .tr it will translate it!
-        if event.raw_text.startswith('.tr '):
-            original_text = event.raw_text[4:]
+        # Automatically translate everything you type to Persian!
+        # (It ignores messages starting with '.' so you can still use commands like .tr_off)
+        if not event.raw_text.startswith('.'):
+            original_text = event.raw_text
             translated = await translate_text(original_text, "Persian")
             if translated:
                 await event.edit(translated)
