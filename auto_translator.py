@@ -52,12 +52,28 @@ async def translate_text(text, target_language):
 
 import re
 
+# Global variable to track if the translator is currently active
+TRANSLATOR_ENABLED = True
+
 @client.on(events.NewMessage(chats=TARGET_CHAT))
 async def translator_handler(event):
-    # 1. OUTGOING MESSAGES (You typing in English -> Auto-converts to Persian)
+    global TRANSLATOR_ENABLED
+
+    # 1. OUTGOING MESSAGES (Commands & Manual Translation)
     if event.out:
+        # Command to pause the auto-translator
+        if event.raw_text.strip() == '.tr_off':
+            TRANSLATOR_ENABLED = False
+            await event.edit("❌ **Auto-Translator Paused.** I will ignore incoming messages.")
+            return
+            
+        # Command to resume the auto-translator
+        if event.raw_text.strip() == '.tr_on':
+            TRANSLATOR_ENABLED = True
+            await event.edit("✅ **Auto-Translator Resumed.** I am listening again.")
+            return
+
         # If you start your message with .tr it will translate it!
-        # Example: You type ".tr Hello brother" -> It edits your message to "سلام برادر"
         if event.raw_text.startswith('.tr '):
             original_text = event.raw_text[4:]
             translated = await translate_text(original_text, "Persian")
@@ -67,12 +83,14 @@ async def translator_handler(event):
         return
 
     # 2. INCOMING MESSAGES (Persian guy typing -> Bot replies in the group with English)
-    if not event.out and event.raw_text:
+    
+    # If you paused the translator, immediately stop and do nothing.
+    if not TRANSLATOR_ENABLED:
+        return
         
+    if not event.out and event.raw_text:
         # Only call the Gemini API if the message actually contains Persian/Arabic characters!
-        # This prevents the bot from wasting your API rate limits on normal English/Hindi messages.
         if re.search(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]', event.raw_text):
-            
             # Tell Gemini to translate it to English
             translated = await translate_text(event.raw_text, "English")
             
