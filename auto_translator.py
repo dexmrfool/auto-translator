@@ -24,7 +24,8 @@ API_HASH = os.getenv("API_HASH", "da58a1841a16c352a2a999171bbabcad")
 SESSION_STRING = os.getenv("SESSION_STRING") # The session of the account you use to chat
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-TARGET_CHAT = "https://t.me/receive_suppurt_gc" # Replace with your target group link or ID
+# Define the group you want the bot to listen to
+TARGET_CHAT = "receive_suppurt_gc" # Replace with your target group link or ID
 
 if not SESSION_STRING:
     logging.error("Please add SESSION_STRING to your environment variables.")
